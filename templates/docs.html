@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumina Studio — Capabilities & Command Reference</title>
+    <script>
+        (function() {
+            var saved = localStorage.getItem("lumina_theme") || "dark";
+            document.documentElement.setAttribute("data-theme", saved);
+        })();
+    </script>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Main Style -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .docs-page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem 5rem 1.5rem;
+        }
+
+        .docs-top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 3rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .docs-hero {
+            text-align: center;
+            margin-bottom: 3.5rem;
+        }
+
+        .docs-hero h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.5px;
+        }
+
+        .docs-hero p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            max-width: 620px;
+            margin: 0 auto 2rem auto;
+            line-height: 1.6;
+        }
+
+        .search-box {
+            position: relative;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1.1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.85rem 1rem 0.85rem 2.8rem;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent-indigo);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        .docs-group {
+            margin-bottom: 3rem;
+        }
+
+        .docs-group-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            border-left: 3px solid var(--accent-indigo);
+            padding-left: 0.75rem;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .card-ref {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 1.4rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .card-ref:hover {
+            border-color: var(--border-focus);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-icon-box {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--accent-indigo);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05rem;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .card-top h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .card-badge {
+            font-size: 0.72rem;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 0.2rem 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-subtle);
+            border-radius: 4px;
+            color: var(--text-muted);
+        }
+
+        .card-badge.badge-new {
+            background: rgba(16, 185, 129, 0.12);
+            color: #10b981;
+            border-color: rgba(16, 185, 129, 0.25);
+        }
+
+        .card-text {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+
+        .prompts-subheading {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .prompts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+        }
+
+        .prompt-row {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.82rem;
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #e2e8f0;
+        }
+
+        .btn-copy-prompt {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-copy-prompt:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .no-matches {
+            text-align: center;
+            padding: 4rem 1rem;
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            display: none;
+        }
+    </style>
+</head>
+<body class="docs-body">
+
+    <div class="docs-page-container">
+        
+        <!-- Header -->
+        <nav class="docs-top-nav">
+            <div class="app-brand">
+                <div class="brand-glyph">
+                    <i class="fa-solid fa-shapes"></i>
+                </div>
+                <div class="brand-meta">
+                    <span class="brand-name">Lumina Studio</span>
+                    <span class="file-status">Documentation & Commands</span>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <a href="/about" class="btn-subtle" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; padding: 0.5rem 1rem; border-radius: 6px;">
+                    <i class="fa-solid fa-circle-info"></i> About & Contact
+                </a>
+                <a href="/" class="btn-subtle" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; padding: 0.5rem 1rem; border-radius: 6px;">
+                    <i class="fa-solid fa-arrow-left"></i> Return to Editor
+                </a>
+            </div>
+        </nav>
+
+        <!-- Intro -->
+        <header class="docs-hero">
+            <h1>Command & Operation Reference</h1>
+            <p>Every tool and OpenCV filter in Lumina Studio can be triggered using UI buttons, fine-adjustment sliders, or natural language prompts.</p>
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="docsSearch" placeholder="Search operations (e.g. 'saturation', 'vignette', 'gamma')..." autocomplete="off">
+            </div>
+        </header>
+
+        <div class="no-matches" id="noMatches">No matching operations found.</div>
+
+        <main id="docsContent">
+
+            <!-- Category: Cutout, Background Removal & Format Conversion -->
+            <section class="docs-group">
+                <h2 class="docs-group-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Background Removal & Format Converters</h2>
+                <div class="cards-grid">
+                    
+                    <div class="card-ref" data-search="remove background remove bg ai grabcut transparent cutout isolate subject">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                                <h3>AI Background Remover</h3>
+                            </div>
+                            <span class="card-badge badge-new">AI GrabCut • Transparent PNG</span>
+                        </div>
+                        <p class="card-text">Iterative Gaussian GrabCut foreground segmentation that isolates the central subject, generates an anti-aliased alpha mask, and outputs a 4-channel transparent PNG.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>remove background</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'remove background')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>remove bg</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'remove bg')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>isolate subject cutout</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'isolate subject cutout')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="manual background eraser brush cutout transparent canvas">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-eraser"></i></div>
+                                <h3>Manual Background Eraser</h3>
+                            </div>
+                            <span class="card-badge badge-new">Interactive Brush • Full Resolution</span>
+                        </div>
+                        <p class="card-text">Pixel-precise canvas brush with adjustable radius (5px to 150px), circular cursor preview, multi-level undo stack, and real-time transparency checkerboard feedback.</p>
+                        <div class="prompts-subheading">How to Use</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>Click 'Manual Eraser' in Geometry/Presets</span>
+                            </div>
+                            <div class="prompt-row">
+                                <span>Brush over background pixels & click 'Save Cutout'</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="color key chroma key remove white background remove green screen dark background">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-fill-drip"></i></div>
+                                <h3>Color Key Background Remover</h3>
+                            </div>
+                            <span class="card-badge">Chroma / Color Key</span>
+                        </div>
+                        <p class="card-text">Isolates solid colored studio backdrops (white product shots, green screens, black darkroom backgrounds) and converts matching pixels to transparent alpha.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>remove white background</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'remove white background')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>remove black background</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'remove black background')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>remove green background</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'remove green background')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="vectorize svg convert to svg vector tracing polygons paths">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-bezier-curve"></i></div>
+                                <h3>SVG Vector Converter</h3>
+                            </div>
+                            <span class="card-badge badge-new">Vectorization • Scalable SVG</span>
+                        </div>
+                        <p class="card-text">Transforms raster images into scalable, resolution-independent vector graphics via K-means color quantization, bilateral smoothing, and polygonal contour approximation (<code>cv2.approxPolyDP</code>).</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>vectorize to svg</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'vectorize to svg')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>convert to svg 8 colors</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'convert to svg 8 colors')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>Export Modal > SVG (Vector)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="make png convert to png transparent format alpha">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-file-image"></i></div>
+                                <h3>PNG Format Converter</h3>
+                            </div>
+                            <span class="card-badge">Lossless • Transparency Support</span>
+                        </div>
+                        <p class="card-text">Converts bitmap images into lossless PNG format with 4-channel BGRA alpha transparency support for cutouts, graphics, and web assets.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>convert to png</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'convert to png')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>make png</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'make png')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="make jpg convert to jpg jpeg flatten white background">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-file-lines"></i></div>
+                                <h3>JPG / JPEG Converter</h3>
+                            </div>
+                            <span class="card-badge">Compressed • Web Standard</span>
+                        </div>
+                        <p class="card-text">Flattens transparent alpha channels over a clean white background and compresses into web-optimized standard JPEG images with customizable quality.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>convert to jpg</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'convert to jpg')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>make jpg</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'make jpg')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Category: Lighting & Exposure -->
+            <section class="docs-group">
+                <h2 class="docs-group-title"><i class="fa-solid fa-sliders"></i> Exposure & Lighting</h2>
+                <div class="cards-grid">
+                    
+                    <div class="card-ref" data-search="brightness light darken offset exposure">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-sun"></i></div>
+                                <h3>Brightness</h3>
+                            </div>
+                            <span class="card-badge">Value (-100 to 100)</span>
+                        </div>
+                        <p class="card-text">Offsets pixel luminance uniformly across all color channels using <code>cv2.convertScaleAbs</code>.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>brighten by 30</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'brighten by 30')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>make the image darker</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'make the image darker')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="contrast dynamic range alpha scale">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-circle-half-stroke"></i></div>
+                                <h3>Contrast</h3>
+                            </div>
+                            <span class="card-badge">Factor (0.5 to 2.5)</span>
+                        </div>
+                        <p class="card-text">Expands or compresses tonal distance between shadows and highlights via scalar multiplication.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>increase contrast by 25%</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'increase contrast by 25%')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>decrease contrast factor 0.8</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'decrease contrast factor 0.8')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="clahe adaptive contrast histogram dynamic range lighting shadows">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-eye"></i></div>
+                                <h3>CLAHE Dynamic Contrast</h3>
+                            </div>
+                            <span class="card-badge badge-new">New • LAB Equalization</span>
+                        </div>
+                        <p class="card-text">Contrast-Limited Adaptive Histogram Equalization applied to the L-channel of the LAB color space, revealing hidden shadow details.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>enhance lighting with clahe</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'enhance lighting with clahe')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>adaptive histogram contrast</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'adaptive histogram contrast')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="gamma power law shadow recovery curve">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-chart-area"></i></div>
+                                <h3>Gamma Correction</h3>
+                            </div>
+                            <span class="card-badge badge-new">New • LUT Power-Law</span>
+                        </div>
+                        <p class="card-text">Applies non-linear power-law transform to recover dark shadows and balance midtones without blowing out highlights.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>lift shadows with gamma 1.5</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'lift shadows with gamma 1.5')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>gamma correction 1.4</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'gamma correction 1.4')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Category: Color & Tonal Grading -->
+            <section class="docs-group">
+                <h2 class="docs-group-title"><i class="fa-solid fa-palette"></i> Color & Tonal Grading</h2>
+                <div class="cards-grid">
+                    
+                    <div class="card-ref" data-search="saturation vibrance pop colors hsv desaturate">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-droplet"></i></div>
+                                <h3>Saturation & Vibrance</h3>
+                            </div>
+                            <span class="card-badge badge-new">New • HSV Scale</span>
+                        </div>
+                        <p class="card-text">Scales the saturation channel in the HSV color model to either boost rich vivid hues or produce muted cinematic tones.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>boost saturation</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'boost saturation')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>desaturate colors</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'desaturate colors')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="temperature warm golden hour cool cyberpunk blue tint">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-fire"></i></div>
+                                <h3>Color Temperature</h3>
+                            </div>
+                            <span class="card-badge">Warm / Cool</span>
+                        </div>
+                        <p class="card-text">Simulates sunset golden hour warmth (+Red, -Blue) or cool moody cyberpunk blue tones.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>warm golden hour</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'warm golden hour')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>cool cyberpunk blue tones</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'cool cyberpunk blue tones')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="splash color splash selective color isolate red blue green">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-wand-magic"></i></div>
+                                <h3>Color Splash</h3>
+                            </div>
+                            <span class="card-badge badge-new">New • Selective Hue</span>
+                        </div>
+                        <p class="card-text">Isolates a targeted color range (e.g. Red, Blue, or Green) while turning all surrounding pixels to black-and-white.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>color splash keep red</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'color splash keep red')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>isolate blue color</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'isolate blue color')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="grayscale black white b&w monochrome">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-circle-half-stroke"></i></div>
+                                <h3>Grayscale</h3>
+                            </div>
+                            <span class="card-badge">Monochrome</span>
+                        </div>
+                        <p class="card-text">Converts 3-channel BGR into single-channel luminance, returned as standard 3-channel grayscale.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>convert to grayscale</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'convert to grayscale')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>make it black and white</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'make it black and white')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="sepia vintage retro old photo">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-leaf"></i></div>
+                                <h3>Vintage Sepia</h3>
+                            </div>
+                            <span class="card-badge">Color Matrix</span>
+                        </div>
+                        <p class="card-text">Applies vintage silver-gelatin photographic sepia transformation matrix.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>apply sepia filter</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'apply sepia filter')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>make it vintage</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'make it vintage')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="colormap false color ocean inferno autumn heat map">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-water"></i></div>
+                                <h3>Artistic Colormaps</h3>
+                            </div>
+                            <span class="card-badge badge-new">New • False Color</span>
+                        </div>
+                        <p class="card-text">Maps luminance into artistic false-color lookups via <code>cv2.applyColorMap</code> (Ocean, Inferno, Autumn, Turbo, Bone).</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>apply ocean colormap</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'apply ocean colormap')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>inferno thermal color map</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'inferno thermal color map')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Category: Visual Effects & Stylization -->
+            <section class="docs-group">
+                <h2 class="docs-group-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Visual Effects & Styling</h2>
+                <div class="cards-grid">
+                    
+                    <div class="card-ref" data-search="sharpen sharp clarity unsharp mask crisp detail">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-gem"></i></div>
+                                <h3>Sharpening & Clarity</h3>
+                            </div>
+                            <span class="card-badge">Unsharp Mask</span>
+                        </div>
+                        <p class="card-text">Brings out fine textures and edge definition using unsharp Gaussian convolution blending.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>sharpen the image</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'sharpen the image')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>sharpen with strength 2.0</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'sharpen with strength 2.0')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="vignette photographic dark corners border falloff shadow">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-camera"></i></div>
+                                <h3>Cinematic Vignette</h3>
+                            </div>
+                            <span class="card-badge">Radial Gaussian</span>
+                        </div>
+                        <p class="card-text">Applies photographic 2D Gaussian radial falloff to darken borders and frame subject focal points.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>apply vignette</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'apply vignette')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>vignette intensity 80%</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'vignette intensity 80%')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="cartoon cartoonify comic comic book anime illustration">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-palette"></i></div>
+                                <h3>Cartoonify Illustration</h3>
+                            </div>
+                            <span class="card-badge">Bilateral + Contour</span>
+                        </div>
+                        <p class="card-text">Combines two-pass bilateral color quantization with adaptive threshold median ink outlines.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>make it a cartoon</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'make it a cartoon')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>comic book effect</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'comic book effect')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="glow neon edges edge glow outline cyberpunk">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-bolt"></i></div>
+                                <h3>Neon Edge Glow</h3>
+                            </div>
+                            <span class="card-badge badge-new">New • Halo Bloom</span>
+                        </div>
+                        <p class="card-text">Detects contour edges, blooms them with Gaussian blur, and blends colored neon back onto dark canvas.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>neon edge glow</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'neon edge glow')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>glowing edges effect</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'glowing edges effect')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="emboss 3d relief texture depth stamped">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-cubes"></i></div>
+                                <h3>3D Relief Emboss</h3>
+                            </div>
+                            <span class="card-badge">Directional 2D</span>
+                        </div>
+                        <p class="card-text">Computes directional gradient convolution with 128 bias, turning image features into 3D stone/metal relief.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>apply 3D emboss</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'apply 3D emboss')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>stamped relief effect</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'stamped relief effect')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="posterize pop art 8-bit retro palette quantize">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-layer-group"></i></div>
+                                <h3>Posterize / 8-Bit</h3>
+                            </div>
+                            <span class="card-badge badge-new">New • Quantization</span>
+                        </div>
+                        <p class="card-text">Reduces color depth to 4-8 discrete tonal steps, producing a pop-art or retro video-game aesthetic.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>posterize to 4 levels</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'posterize to 4 levels')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>retro 8-bit pop art look</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'retro 8-bit pop art look')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="solarize sabattier tone inversion darkroom">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-eclipse"></i></div>
+                                <h3>Solarize (Sabattier)</h3>
+                            </div>
+                            <span class="card-badge badge-new">New • Threshold Invert</span>
+                        </div>
+                        <p class="card-text">Selectively inverts pixel intensities above a threshold, mimicking classical darkroom photographic solarization.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>apply solarize effect</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'apply solarize effect')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>solarization threshold 140</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'solarization threshold 140')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="sketch pencil drawing lines artistic outline">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-pencil"></i></div>
+                                <h3>Pencil Sketch</h3>
+                            </div>
+                            <span class="card-badge">Color Dodge</span>
+                        </div>
+                        <p class="card-text">Simulates hand-drawn graphite pencil art using inverted blurred grayscale division.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>convert to sketch</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'convert to sketch')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>pencil sketch effect</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'pencil sketch effect')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Category: Cleaning & Edge Analysis -->
+            <section class="docs-group">
+                <h2 class="docs-group-title"><i class="fa-solid fa-broom"></i> Cleaning & Edge Analysis</h2>
+                <div class="cards-grid">
+                    
+                    <div class="card-ref" data-search="denoise smooth skin noise reduction bilateral filter portrait">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-feather"></i></div>
+                                <h3>Bilateral Denoise & Smoothing</h3>
+                            </div>
+                            <span class="card-badge">Edge-Preserving</span>
+                        </div>
+                        <p class="card-text">Smooths surface noise and skin textures while preserving sharp edge boundaries.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>denoise and smooth skin</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'denoise and smooth skin')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>remove noise from photo</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'remove noise from photo')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="median blur salt and pepper speckles grain noise cleaner">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-broom"></i></div>
+                                <h3>Median Noise Filter</h3>
+                            </div>
+                            <span class="card-badge badge-new">New • Median Kernel</span>
+                        </div>
+                        <p class="card-text">Replaces each pixel with the median of neighboring pixels, effectively removing salt-and-pepper noise and film speckles.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>clean salt and pepper noise</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'clean salt and pepper noise')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>median blur by 7</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'median blur by 7')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="canny edges detect contour outline lines hysteresis">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-wave-square"></i></div>
+                                <h3>Canny Edge Detection</h3>
+                            </div>
+                            <span class="card-badge">Hysteresis</span>
+                        </div>
+                        <p class="card-text">Multi-stage edge detector computing gradient magnitudes with non-maximum suppression.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>detect canny edges</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'detect canny edges')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>edges low: 80 high: 160</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'edges low: 80 high: 160')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-ref" data-search="blur gaussian smooth soften">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <div class="card-icon-box"><i class="fa-solid fa-braille"></i></div>
+                                <h3>Gaussian Blur</h3>
+                            </div>
+                            <span class="card-badge">Kernel (Odd)</span>
+                        </div>
+                        <p class="card-text">Convolves image with a 2D Gaussian kernel to create smooth defocus backgrounds or soften details.</p>
+                        <div class="prompts-subheading">Example Prompts</div>
+                        <div class="prompts-list">
+                            <div class="prompt-row">
+                                <span>blur the image</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'blur the image')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                            <div class="prompt-row">
+                                <span>gaussian blur by 21</span>
+                                <button class="btn-copy-prompt" onclick="copyText(this, 'gaussian blur by 21')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        // Theme Sync
+        const currentTheme = localStorage.getItem("lumina_theme") || "dark";
+        document.documentElement.setAttribute("data-theme", currentTheme);
+
+        function copyText(btn, text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const icon = btn.querySelector('i');
+                icon.className = 'fa-solid fa-check';
+                icon.style.color = '#10b981';
+                setTimeout(() => {
+                    icon.className = 'fa-regular fa-copy';
+                    icon.style.color = '';
+                }, 1500);
+            });
+        }
+
+        document.getElementById('docsSearch').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.card-ref');
+            const groups = document.querySelectorAll('.docs-group');
+            const noMatches = document.getElementById('noMatches');
+
+            let totalMatches = 0;
+
+            groups.forEach(group => {
+                let groupHasMatch = false;
+                const groupCards = group.querySelectorAll('.card-ref');
+
+                groupCards.forEach(card => {
+                    const title = card.querySelector('h3').innerText.toLowerCase();
+                    const desc = card.querySelector('.card-text').innerText.toLowerCase();
+                    const searchTags = card.getAttribute('data-search') || '';
+
+                    const isMatch = title.includes(query) || desc.includes(query) || searchTags.includes(query);
+
+                    if (isMatch) {
+                        card.style.display = 'flex';
+                        groupHasMatch = true;
+                        totalMatches++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                group.style.display = groupHasMatch ? 'block' : 'none';
+            });
+
+            noMatches.style.display = (totalMatches === 0) ? 'block' : 'none';
+        });
+    </script>
+</body>
+</html>

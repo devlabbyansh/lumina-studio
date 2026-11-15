@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumina Studio — Image Processing & Vision Workspace</title>
+    <script>
+        (function() {
+            var saved = localStorage.getItem("lumina_theme") || "dark";
+            document.documentElement.setAttribute("data-theme", saved);
+        })();
+    </script>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Main Style -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="editor-body">
+
+    <!-- Top Application Menu & Navbar (Creative Suite Style) -->
+    <header class="studio-navbar">
+        <div class="nav-left">
+            <div class="app-brand">
+                <div class="brand-glyph">
+                    <i class="fa-solid fa-shapes"></i>
+                </div>
+                <div class="brand-meta">
+                    <span class="brand-name">Lumina<span class="brand-pro">PRO</span></span>
+                </div>
+            </div>
+
+            <!-- Photoshop-Style Application Dropdown Menus -->
+            <nav class="app-menubar">
+                <div class="menu-item" tabindex="0">
+                    <span class="menu-label">File</span>
+                    <div class="menu-dropdown">
+                        <button type="button" class="menu-btn" id="menuNew"><i class="fa-solid fa-file-circle-plus"></i> New Canvas <kbd>Ctrl+N</kbd></button>
+                        <button type="button" class="menu-btn" id="menuOpen"><i class="fa-solid fa-folder-open"></i> Open Image... <kbd>Ctrl+O</kbd></button>
+                        <button type="button" class="menu-btn" id="menuDemo"><i class="fa-solid fa-wand-magic-sparkles"></i> Open Sample Photo</button>
+                        <div class="menu-divider"></div>
+                        <button type="button" class="menu-btn" id="menuExport"><i class="fa-solid fa-arrow-down"></i> Export Image... <kbd>Ctrl+S</kbd></button>
+                        <button type="button" class="menu-btn" id="menuExportSVG"><i class="fa-solid fa-bezier-curve"></i> Quick SVG Vector</button>
+                    </div>
+                </div>
+
+                <div class="menu-item" tabindex="0">
+                    <span class="menu-label">Edit</span>
+                    <div class="menu-dropdown">
+                        <button type="button" class="menu-btn" id="menuUndo"><i class="fa-solid fa-rotate-left"></i> Undo Edit <kbd>Ctrl+Z</kbd></button>
+                        <button type="button" class="menu-btn" id="menuRevert"><i class="fa-solid fa-clock-rotate-left"></i> Revert to Original</button>
+                        <div class="menu-divider"></div>
+                        <button type="button" class="menu-btn" id="menuCrop"><i class="fa-solid fa-crop-simple"></i> Crop Tool <kbd>C</kbd></button>
+                        <button type="button" class="menu-btn" id="menuEraser"><i class="fa-solid fa-eraser"></i> Manual Eraser <kbd>E</kbd></button>
+                    </div>
+                </div>
+
+                <div class="menu-item" tabindex="0">
+                    <span class="menu-label">Image</span>
+                    <div class="menu-dropdown">
+                        <button type="button" class="menu-btn" id="menuAIBG"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Remove Background</button>
+                        <button type="button" class="menu-btn" id="menuKeyWhite"><i class="fa-solid fa-fill-drip"></i> Key White Background</button>
+                        <div class="menu-divider"></div>
+                        <button type="button" class="menu-btn" id="menuMakePNG"><i class="fa-solid fa-file-image"></i> Convert to PNG (Alpha)</button>
+                        <button type="button" class="menu-btn" id="menuMakeJPG"><i class="fa-solid fa-file-lines"></i> Convert to JPG (Flatten)</button>
+                        <button type="button" class="menu-btn" id="menuVectorize"><i class="fa-solid fa-bezier-curve"></i> Vectorize to SVG Paths</button>
+                        <div class="menu-divider"></div>
+                        <button type="button" class="menu-btn" id="menuRotateCW"><i class="fa-solid fa-rotate-right"></i> Rotate 90° CW</button>
+                        <button type="button" class="menu-btn" id="menuFlipH"><i class="fa-solid fa-arrows-left-right"></i> Flip Horizontal</button>
+                    </div>
+                </div>
+
+                <div class="menu-item" tabindex="0">
+                    <span class="menu-label">Filter</span>
+                    <div class="menu-dropdown">
+                        <button type="button" class="menu-btn" data-menu-action="warm"><i class="fa-solid fa-fire text-amber"></i> Golden Hour Tone</button>
+                        <button type="button" class="menu-btn" data-menu-action="cool"><i class="fa-solid fa-snowflake text-cyan"></i> Cyberpunk Blue</button>
+                        <button type="button" class="menu-btn" data-menu-action="clahe"><i class="fa-solid fa-sun text-yellow"></i> CLAHE Dynamic Range</button>
+                        <button type="button" class="menu-btn" data-menu-action="cartoon"><i class="fa-solid fa-palette text-purple"></i> Cartoon Illustration</button>
+                        <button type="button" class="menu-btn" data-menu-action="denoise"><i class="fa-solid fa-feather text-emerald"></i> Smooth Skin / Denoise</button>
+                        <button type="button" class="menu-btn" data-menu-action="sepia"><i class="fa-solid fa-leaf text-amber"></i> Vintage Sepia</button>
+                        <button type="button" class="menu-btn" data-menu-action="sketch"><i class="fa-solid fa-pencil text-slate"></i> Hand-Drawn Sketch</button>
+                        <button type="button" class="menu-btn" data-menu-action="edge_glow"><i class="fa-solid fa-bolt text-pink"></i> Neon Edge Glow</button>
+                    </div>
+                </div>
+
+                <div class="menu-item" tabindex="0">
+                    <span class="menu-label">View</span>
+                    <div class="menu-dropdown">
+                        <button type="button" class="menu-btn" id="menuViewSplit"><i class="fa-solid fa-table-columns"></i> Split Slider View</button>
+                        <button type="button" class="menu-btn" id="menuViewSide"><i class="fa-solid fa-grip-lines-vertical"></i> Side by Side Dual View</button>
+                        <div class="menu-divider"></div>
+                        <button type="button" class="menu-btn" id="menuZoomIn"><i class="fa-solid fa-plus"></i> Zoom In <kbd>+</kbd></button>
+                        <button type="button" class="menu-btn" id="menuZoomOut"><i class="fa-solid fa-minus"></i> Zoom Out <kbd>-</kbd></button>
+                        <button type="button" class="menu-btn" id="menuZoomFit"><i class="fa-solid fa-compress"></i> Fit to Viewport</button>
+                    </div>
+                </div>
+
+                <div class="menu-item" tabindex="0">
+                    <span class="menu-label">Help</span>
+                    <div class="menu-dropdown">
+                        <a href="/docs" class="menu-btn" style="text-decoration: none;"><i class="fa-regular fa-circle-question"></i> Documentation</a>
+                        <a href="/about" class="menu-btn" style="text-decoration: none;"><i class="fa-solid fa-circle-info"></i> About Lumina Studio</a>
+                        <a href="/about#contact" class="menu-btn" style="text-decoration: none;"><i class="fa-solid fa-envelope"></i> Report Issue / Contact</a>
+                    </div>
+                </div>
+            </nav>
+
+            <span class="file-pill" id="activeFilename">No file open</span>
+        </div>
+
+        <!-- Center View Controls & Zoom -->
+        <div class="nav-center" id="navViewControls" style="display: none;">
+            <div class="segmented-control">
+                <button type="button" class="segment-btn active" id="btnViewSplit" title="Before / After Split Slider">
+                    <i class="fa-solid fa-table-columns"></i> <span>Split</span>
+                </button>
+                <button type="button" class="segment-btn" id="btnViewSide" title="Side-by-Side Dual View">
+                    <i class="fa-solid fa-grip-lines-vertical"></i> <span>Side by Side</span>
+                </button>
+                <button type="button" class="segment-btn" id="btnViewHold" title="Hold to compare (or press Spacebar)">
+                    <i class="fa-regular fa-eye"></i> <span>Hold</span>
+                </button>
+            </div>
+
+            <!-- Viewport Zoom Controls -->
+            <div class="zoom-controls">
+                <button type="button" class="btn-zoom" id="btnZoomOut" title="Zoom Out (Ctrl -)"><i class="fa-solid fa-minus"></i></button>
+                <span class="zoom-indicator" id="zoomVal" title="Click to reset zoom">100%</span>
+                <button type="button" class="btn-zoom" id="btnZoomIn" title="Zoom In (Ctrl +)"><i class="fa-solid fa-plus"></i></button>
+                <button type="button" class="btn-zoom" id="btnZoomFit" title="Fit to Canvas"><i class="fa-solid fa-arrows-to-eye"></i></button>
+            </div>
+        </div>
+
+        <!-- Right Quick Actions & Theme Switcher -->
+        <div class="nav-right">
+            <!-- Light / Dark Mode Toggle -->
+            <button type="button" class="theme-toggle-btn" id="btnToggleTheme" title="Toggle Light / Dark Mode">
+                <i class="fa-solid fa-moon" id="themeIcon"></i>
+                <span id="themeText">Dark</span>
+            </button>
+
+            <button type="button" class="nav-btn-subtle" id="btnToggleAssistant" title="Toggle AI Assistant Panel">
+                <i class="fa-solid fa-wand-magic-sparkles text-cyan"></i> <span>AI Assistant</span>
+            </button>
+            <button type="button" class="nav-btn-subtle icon-only" id="btnShortcuts" title="Keyboard Shortcuts (?)">
+                <i class="fa-regular fa-keyboard"></i>
+            </button>
+            <a href="/docs" class="nav-btn-subtle" title="Documentation & Command Reference">
+                <i class="fa-regular fa-circle-question"></i> <span>Docs</span>
+            </a>
+            <a href="/about" class="nav-btn-subtle" title="About Lumina Studio & Report Issue">
+                <i class="fa-solid fa-circle-info"></i> <span>About</span>
+            </a>
+            <button type="button" class="nav-btn-subtle icon-only" id="btnNewCanvas" title="Clear canvas and open new image">
+                <i class="fa-solid fa-file-circle-plus"></i>
+            </button>
+            <button type="button" class="btn-primary-export" id="btnOpenExport" style="display: none;">
+                <i class="fa-solid fa-arrow-down"></i> <span>Export</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace Area -->
+    <div class="studio-workspace">
+        
+        <!-- Left Vertical Toolrail (Creative App Style) -->
+        <aside class="studio-toolrail" id="studioToolrail">
+            <button type="button" class="rail-btn active" id="railToolSelect" title="Select / Split Slider (V)">
+                <i class="fa-solid fa-arrow-pointer"></i>
+                <span class="rail-tooltip">Select Tool (V)</span>
+            </button>
+            <button type="button" class="rail-btn" id="railToolCrop" title="Interactive Crop Box (C)">
+                <i class="fa-solid fa-crop-simple"></i>
+                <span class="rail-tooltip">Crop Box (C)</span>
+            </button>
+            <button type="button" class="rail-btn" id="railToolEraser" title="Manual Background Eraser (E)">
+                <i class="fa-solid fa-eraser"></i>
+                <span class="rail-tooltip">Eraser Brush (E)</span>
+            </button>
+            <button type="button" class="rail-btn" id="railToolAutoBG" title="AI Background Cutout (W)">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span class="rail-tooltip">AI Cutout (W)</span>
+            </button>
+            <button type="button" class="rail-btn" id="railToolVector" title="Vectorize into SVG (S)">
+                <i class="fa-solid fa-bezier-curve"></i>
+                <span class="rail-tooltip">SVG Vectorizer</span>
+            </button>
+            <div class="rail-divider"></div>
+            <button type="button" class="rail-btn" id="railTabAdjust" title="Fine Adjustments (A)">
+                <i class="fa-solid fa-sliders"></i>
+                <span class="rail-tooltip">Sliders (A)</span>
+            </button>
+            <button type="button" class="rail-btn" id="railTabPresets" title="Presets & Cutout (F)">
+                <i class="fa-solid fa-palette"></i>
+                <span class="rail-tooltip">Presets (F)</span>
+            </button>
+            <button type="button" class="rail-btn" id="railTabHist" title="Histogram & Channels (H)">
+                <i class="fa-solid fa-chart-area"></i>
+                <span class="rail-tooltip">Histogram (H)</span>
+            </button>
+        </aside>
+
+        <!-- Left Sidebar: Tools & Adjustments -->
+        <aside class="studio-sidebar" id="studioSidebar">
+            <!-- Navigation Tabs -->
+            <div class="sidebar-tabs">
+                <button class="tab-btn active" data-tab="adjust"><i class="fa-solid fa-sliders text-cyan"></i> Adjust</button>
+                <button class="tab-btn" data-tab="filters"><i class="fa-solid fa-wand-magic-sparkles text-emerald"></i> Presets</button>
+                <button class="tab-btn" data-tab="transform"><i class="fa-solid fa-crop-simple text-amber"></i> Geometry</button>
+                <button class="tab-btn" data-tab="histogram"><i class="fa-solid fa-chart-area text-purple"></i> Histogram</button>
+            </div>
+
+            <div class="sidebar-panels">
+                
+                <!-- Panel 1: Live Interactive Sliders -->
+                <div class="tool-panel active" id="panel-adjust">
+                    <div class="panel-heading">Fine Adjustments</div>
+                    
+                    <div class="slider-control-card">
+                        <div class="slider-header-row">
+                            <span class="slider-label">Brightness</span>
+                            <span class="slider-val-tag" id="valBrightness">0</span>
+                        </div>
+                        <input type="range" min="-100" max="100" value="0" step="5" class="custom-range range-brightness" id="slideBrightness">
+                    </div>
+
+                    <div class="slider-control-card">
+                        <div class="slider-header-row">
+                            <span class="slider-label">Contrast</span>
+                            <span class="slider-val-tag" id="valContrast">1.0x</span>
+                        </div>
+                        <input type="range" min="50" max="250" value="100" step="5" class="custom-range range-contrast" id="slideContrast">
+                    </div>
+
+                    <div class="slider-control-card">
+                        <div class="slider-header-row">
+                            <span class="slider-label">Warmth / Temperature</span>
+                            <span class="slider-val-tag" id="valTemperature">0</span>
+                        </div>
+                        <input type="range" min="-60" max="60" value="0" step="5" class="custom-range range-warmth" id="slideTemperature">
+                    </div>
+
+                    <div class="slider-control-card">
+                        <div class="slider-header-row">
+                            <span class="slider-label">Saturation / Vibrance</span>
+                            <span class="slider-val-tag" id="valSaturation">1.0x</span>
+                        </div>
+                        <input type="range" min="0" max="300" value="100" step="10" class="custom-range range-saturation" id="slideSaturation">
+                    </div>
+
+                    <div class="slider-control-card">
+                        <div class="slider-header-row">
+                            <span class="slider-label">Sharpness & Detail</span>
+                            <span class="slider-val-tag" id="valSharpen">1.0x</span>
+                        </div>
+                        <input type="range" min="50" max="350" value="100" step="25" class="custom-range range-sharpen" id="slideSharpen">
+                    </div>
+
+                    <div class="slider-control-card">
+                        <div class="slider-header-row">
+                            <span class="slider-label">Gaussian Blur</span>
+                            <span class="slider-val-tag" id="valBlur">0 px</span>
+                        </div>
+                        <input type="range" min="0" max="40" value="0" step="2" class="custom-range range-blur" id="slideBlur">
+                    </div>
+
+                    <div class="slider-control-card">
+                        <div class="slider-header-row">
+                            <span class="slider-label">Vignette Falloff</span>
+                            <span class="slider-val-tag" id="valVignette">0%</span>
+                        </div>
+                        <input type="range" min="0" max="100" value="0" step="5" class="custom-range range-vignette" id="slideVignette">
+                    </div>
+
+                    <div class="slider-control-card">
+                        <div class="slider-header-row">
+                            <span class="slider-label">Gamma (Shadow Lift)</span>
+                            <span class="slider-val-tag" id="valGamma">1.0</span>
+                        </div>
+                        <input type="range" min="40" max="250" value="100" step="10" class="custom-range range-gamma" id="slideGamma">
+                    </div>
+
+                    <div class="slider-actions-row">
+                        <button type="button" class="btn-sidebar-action primary" id="btnApplySliders">
+                            <i class="fa-solid fa-check"></i> Apply Adjustment
+                        </button>
+                        <button type="button" class="btn-sidebar-action" id="btnResetSliders" title="Reset all sliders to zero">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Panel 2: Cutout, Formats & Filters -->
+                <div class="tool-panel" id="panel-filters">
+                    <div class="panel-heading">Smart Cutout & Formats</div>
+                    <div class="preset-grid featured-grid">
+                        <button class="preset-tile tile-featured" data-action="remove_bg" title="AI GrabCut automated foreground extraction">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>AI Remove BG</span>
+                        </button>
+                        <button class="preset-tile tile-featured" id="btnSideManualEraser" title="Interactive brush to manually erase background">
+                            <i class="fa-solid fa-eraser"></i>
+                            <span>Manual Eraser</span>
+                        </button>
+                        <button class="preset-tile tile-featured" data-action="vectorize" title="Convert raster image to scalable SVG vector polygons">
+                            <i class="fa-solid fa-bezier-curve"></i>
+                            <span>Vectorize (SVG)</span>
+                        </button>
+                        <button class="preset-tile" data-action="make_png" title="Convert to transparent PNG">
+                            <i class="fa-solid fa-file-image"></i>
+                            <span>Make PNG</span>
+                        </button>
+                        <button class="preset-tile" data-action="make_jpg" title="Convert to standard JPEG (white background)">
+                            <i class="fa-solid fa-file-lines"></i>
+                            <span>Make JPG</span>
+                        </button>
+                        <button class="preset-tile" data-action="remove_bg_color" data-param="white" title="Remove solid white background">
+                            <i class="fa-solid fa-fill-drip"></i>
+                            <span>Key White BG</span>
+                        </button>
+                    </div>
+
+                    <div class="panel-heading" style="margin-top: 1.25rem;">Photo Filters & Styling</div>
+                    
+                    <div class="preset-grid">
+                        <button class="preset-tile" data-action="clahe">
+                            <i class="fa-solid fa-sun"></i>
+                            <span>CLAHE Contrast</span>
+                        </button>
+                        <button class="preset-tile" data-action="cartoon">
+                            <i class="fa-solid fa-palette"></i>
+                            <span>Cartoonify</span>
+                        </button>
+                        <button class="preset-tile" data-action="warm">
+                            <i class="fa-solid fa-fire"></i>
+                            <span>Golden Hour</span>
+                        </button>
+                        <button class="preset-tile" data-action="cool">
+                            <i class="fa-solid fa-snowflake"></i>
+                            <span>Cyberpunk Blue</span>
+                        </button>
+                        <button class="preset-tile" data-action="denoise">
+                            <i class="fa-solid fa-feather"></i>
+                            <span>Smooth Skin</span>
+                        </button>
+                        <button class="preset-tile" data-action="grayscale">
+                            <i class="fa-solid fa-circle-half-stroke"></i>
+                            <span>Grayscale</span>
+                        </button>
+                        <button class="preset-tile" data-action="sepia">
+                            <i class="fa-solid fa-leaf"></i>
+                            <span>Vintage Sepia</span>
+                        </button>
+                        <button class="preset-tile" data-action="sketch">
+                            <i class="fa-solid fa-pencil"></i>
+                            <span>Pencil Sketch</span>
+                        </button>
+                        <button class="preset-tile" data-action="emboss">
+                            <i class="fa-solid fa-cubes"></i>
+                            <span>3D Emboss</span>
+                        </button>
+                        <button class="preset-tile" data-action="edge_glow">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>Neon Glow</span>
+                        </button>
+                        <button class="preset-tile" data-action="posterize">
+                            <i class="fa-solid fa-layer-group"></i>
+                            <span>Posterize 8-Bit</span>
+                        </button>
+                        <button class="preset-tile" data-action="solarize">
+                            <i class="fa-solid fa-eclipse"></i>
+                            <span>Solarize FX</span>
+                        </button>
+                        <button class="preset-tile" data-action="colormap" data-param="ocean">
+                            <i class="fa-solid fa-water"></i>
+                            <span>Ocean Palette</span>
+                        </button>
+                        <button class="preset-tile" data-action="colormap" data-param="inferno">
+                            <i class="fa-solid fa-volcano"></i>
+                            <span>Inferno Heat</span>
+                        </button>
+                        <button class="preset-tile" data-action="color_splash" data-param="red">
+                            <i class="fa-solid fa-droplet"></i>
+                            <span>Red Splash</span>
+                        </button>
+                        <button class="preset-tile" data-action="edges">
+                            <i class="fa-solid fa-wave-square"></i>
+                            <span>Canny Edges</span>
+                        </button>
+                        <button class="preset-tile" data-action="invert">
+                            <i class="fa-solid fa-circle-notch"></i>
+                            <span>Invert Negative</span>
+                        </button>
+                        <button class="preset-tile" data-action="median_blur">
+                            <i class="fa-solid fa-broom"></i>
+                            <span>Grain Cleaner</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Panel 3: Geometry & Transform -->
+                <div class="tool-panel" id="panel-transform">
+                    <div class="panel-heading">Orientation & Flip</div>
+                    <div class="transform-grid">
+                        <button class="btn-transform" id="btnRotateCW">
+                            <i class="fa-solid fa-rotate-right"></i> <span>Rotate 90° CW</span>
+                        </button>
+                        <button class="btn-transform" id="btnRotateCCW">
+                            <i class="fa-solid fa-rotate-left"></i> <span>Rotate 90° CCW</span>
+                        </button>
+                        <button class="btn-transform" id="btnFlipH">
+                            <i class="fa-solid fa-arrows-left-right"></i> <span>Flip Horizontal</span>
+                        </button>
+                        <button class="btn-transform" id="btnFlipV">
+                            <i class="fa-solid fa-arrows-up-down"></i> <span>Flip Vertical</span>
+                        </button>
+                    </div>
+
+                    <div class="panel-heading" style="margin-top: 1.5rem;">Cutout & Canvas Tools</div>
+                    <button class="btn-crop-trigger" id="btnStartEraser">
+                        <i class="fa-solid fa-eraser"></i> Manual Eraser Brush
+                    </button>
+                    <button class="btn-crop-trigger" id="btnStartCrop" style="margin-top: 0.5rem;">
+                        <i class="fa-solid fa-crop-simple"></i> Interactive Crop Box
+                    </button>
+                    <div class="crop-chip-row">
+                        <button class="crop-pill" data-crop="center" data-pct="75">Center 75%</button>
+                        <button class="crop-pill" data-crop="center" data-pct="50">Square 50%</button>
+                        <button class="crop-pill" data-crop="top" data-pct="60">Top 60%</button>
+                        <button class="crop-pill" data-crop="bottom" data-pct="60">Bottom 60%</button>
+                    </div>
+                </div>
+
+                <!-- Panel 4: Color Analysis & Histogram -->
+                <div class="tool-panel" id="panel-histogram">
+                    <div class="panel-heading">RGB Channel Analysis</div>
+                    <div class="histogram-card">
+                        <canvas id="histogramCanvas" width="260" height="130"></canvas>
+                        <div class="hist-labels">
+                            <span class="hist-label red"><i class="fa-solid fa-circle"></i> Red</span>
+                            <span class="hist-label green"><i class="fa-solid fa-circle"></i> Green</span>
+                            <span class="hist-label blue"><i class="fa-solid fa-circle"></i> Blue</span>
+                        </div>
+                    </div>
+                    <button class="btn-sidebar-action" id="btnRefreshHist" style="margin-top: 1rem; width: 100%;">
+                        <i class="fa-solid fa-arrows-rotate"></i> Recompute Histogram
+                    </button>
+                </div>
+
+            </div>
+        </aside>
+
+        <!-- Center Stage: The Hero Canvas -->
+        <main class="studio-canvas-area" id="canvasArea">
+            
+            <!-- Empty State / File Dropzone -->
+            <div class="canvas-empty-state" id="uploadZone">
+                <input type="file" id="imageInput" accept="image/png, image/jpeg, image/jpg, image/webp" class="file-input-hidden">
+                <div class="empty-drop-card" id="dropCard">
+                    <div class="upload-icon-circle">
+                        <i class="fa-regular fa-image"></i>
+                    </div>
+                    <h2>Open an Image to Edit</h2>
+                    <p class="drop-hint">Drag & drop your photo, click to browse, or press <code>Ctrl + V</code> to paste from clipboard</p>
+                    <div class="format-chips">
+                        <span>PNG</span>
+                        <span>JPEG</span>
+                        <span>WEBP</span>
+                        <span>Max 16 MB</span>
+                    </div>
+                    <div class="empty-btn-group">
+                        <button type="button" class="btn-open-file" id="btnBrowse">
+                            <i class="fa-solid fa-folder-open"></i> Browse File
+                        </button>
+                        <button type="button" class="btn-open-demo" id="btnLoadDemo">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Open Sample Photo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Canvas Display Container -->
+            <div class="canvas-viewport" id="canvasContainer" style="display: none;">
+                
+                <!-- 1. Split Slider View Mode -->
+                <div class="canvas-stage" id="splitViewBox">
+                    <!-- Comparison Source Selector Bar -->
+                    <div class="compare-toolbar" id="compareToolbar">
+                        <span class="compare-toolbar-title"><i class="fa-solid fa-code-compare"></i> Compare with:</span>
+                        <div class="compare-source-pills">
+                            <button type="button" class="source-pill active" id="btnSourceOrig" title="Compare against the original uploaded image">
+                                <i class="fa-solid fa-image"></i> Original
+                            </button>
+                            <button type="button" class="source-pill" id="btnSourcePrev" title="Compare against the step before this edit">
+                                <i class="fa-solid fa-clock-rotate-left"></i> Previous Step
+                            </button>
+                        </div>
+                        <span class="compare-hint" id="compareHintText">Drag slider to compare before / after</span>
+                    </div>
+
+                    <div class="compare-container" id="compareContainer">
+                        <!-- Bottom Layer: Original / Previous Step Image -->
+                        <img id="imgOriginal" class="compare-img compare-base" src="" alt="Comparison Base" draggable="false">
+
+                        <!-- Top Layer: Processed Image (Clipped) -->
+                        <div class="compare-overlay" id="compareOverlay">
+                            <img id="imgProcessed" class="compare-img compare-top" src="" alt="Edited Result" draggable="false">
+                        </div>
+
+                        <!-- Manual Crop Box Overlay -->
+                        <div class="crop-overlay" id="cropOverlay" style="display: none;">
+                            <div class="crop-box" id="cropBox">
+                                <div class="crop-handle tl" data-handle="tl"></div>
+                                <div class="crop-handle tr" data-handle="tr"></div>
+                                <div class="crop-handle bl" data-handle="bl"></div>
+                                <div class="crop-handle br" data-handle="br"></div>
+                                <div class="crop-grid">
+                                    <div></div><div></div><div></div>
+                                    <div></div><div></div><div></div>
+                                    <div></div><div></div><div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Manual Eraser Canvas Overlay -->
+                        <div class="eraser-overlay" id="eraserOverlay" style="display: none;">
+                            <canvas id="eraserCanvas"></canvas>
+                            <div class="eraser-cursor" id="eraserCursor"></div>
+                        </div>
+
+                        <!-- Divider Line & Handle -->
+                        <div class="compare-slider-line" id="compareSliderLine">
+                            <div class="compare-slider-handle">
+                                <i class="fa-solid fa-arrows-left-right"></i>
+                            </div>
+                        </div>
+
+                        <!-- Full Range Controller Overlay -->
+                        <input type="range" min="0" max="100" value="50" class="compare-range-input" id="compareRangeInput" aria-label="Before/after split slider">
+
+                        <!-- Frosted Badges -->
+                        <span class="compare-badge badge-left" id="badgeCompareLeft">ORIGINAL</span>
+                        <span class="compare-badge badge-right" id="badgeCompareRight">EDITED</span>
+                    </div>
+                </div>
+
+                <!-- 2. Side-by-Side Dual View Mode -->
+                <div class="side-stage" id="sideViewBox" style="display: none;">
+                    <div class="side-card">
+                        <div class="side-card-header">
+                            <span class="side-tag">ORIGINAL PHOTO</span>
+                        </div>
+                        <div class="side-card-body">
+                            <img id="imgSideOriginal" class="side-preview-img" src="" alt="Original" draggable="false">
+                        </div>
+                    </div>
+                    <div class="side-card">
+                        <div class="side-card-header">
+                            <span class="side-tag active">EDITED RESULT</span>
+                        </div>
+                        <div class="side-card-body">
+                            <img id="imgSideProcessed" class="side-preview-img" src="" alt="Processed" draggable="false">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manual Crop Floating Toolbar -->
+                <div class="crop-floating-toolbar" id="cropToolbar" style="display: none;">
+                    <span><i class="fa-solid fa-crosshairs"></i> Drag box edges to adjust crop bounds</span>
+                    <div class="crop-btn-group">
+                        <button type="button" class="btn-sm btn-subtle" id="btnCancelCrop">Cancel</button>
+                        <button type="button" class="btn-sm btn-accent" id="btnConfirmCrop">Apply Crop</button>
+                    </div>
+                </div>
+
+                <!-- Manual Eraser Floating Toolbar -->
+                <div class="eraser-floating-toolbar" id="eraserToolbar" style="display: none;">
+                    <div class="eraser-tool-title">
+                        <i class="fa-solid fa-eraser"></i> <span>Manual BG Eraser</span>
+                    </div>
+                    <div class="eraser-controls-group">
+                        <span class="eraser-size-label">Brush: <strong id="eraserSizeVal">30px</strong></span>
+                        <input type="range" id="eraserSize" min="5" max="150" value="30" class="custom-range range-sm">
+                        <button type="button" class="btn-sm btn-subtle" id="btnEraserUndo" title="Undo last brush stroke">
+                            <i class="fa-solid fa-rotate-left"></i> Undo
+                        </button>
+                        <button type="button" class="btn-sm btn-subtle" id="btnEraserClear" title="Clear all brush strokes">
+                            <i class="fa-solid fa-trash-can"></i> Reset
+                        </button>
+                    </div>
+                    <div class="eraser-action-group">
+                        <button type="button" class="btn-sm btn-subtle" id="btnCancelEraser">Cancel</button>
+                        <button type="button" class="btn-sm btn-accent" id="btnConfirmEraser">
+                            <i class="fa-solid fa-check"></i> Save Cutout
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Floating Bottom AI Command Bar -->
+                <div class="floating-command-bar">
+                    <form class="command-pill-form" id="floatingPromptForm">
+                        <i class="fa-solid fa-wand-magic-sparkles command-glow-icon"></i>
+                        <input type="text" id="floatingInput" placeholder="Describe edit in natural language... (e.g. 'warm sunset tone', 'sharpen clarity')" autocomplete="off">
+                        <button type="submit" class="btn-run-command" title="Run Command">
+                            <i class="fa-solid fa-arrow-up"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Canvas Footer Status Bar -->
+                <footer class="canvas-status-bar">
+                    <div class="status-left">
+                        <button class="footer-action-btn" id="btnUndo" title="Undo Last Edit (Ctrl+Z)">
+                            <i class="fa-solid fa-rotate-left"></i> <span>Undo</span>
+                        </button>
+                        <button class="footer-action-btn" id="btnResetAll" title="Revert to Original Image">
+                            <i class="fa-solid fa-clock-rotate-left"></i> <span>Revert</span>
+                        </button>
+                        <span class="step-pill" id="stepCounter">1 step</span>
+                    </div>
+
+                    <!-- History Breadcrumb Trail -->
+                    <div class="status-center">
+                        <div class="history-crumbs" id="historyTrail"></div>
+                    </div>
+
+                    <div class="status-right">
+                        <span class="spec-pill" id="metaRes">0 × 0 px</span>
+                        <span class="spec-pill" id="metaSize">0 KB</span>
+                        <span class="spec-pill" id="metaColor">BGR</span>
+                    </div>
+                </footer>
+
+                <!-- Loading Spinner Overlay -->
+                <div class="canvas-loader" id="canvasLoader">
+                    <div class="spinner-ring"></div>
+                    <span id="canvasLoaderText">Processing transformation...</span>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Right Collapsible Drawer: Natural Language Assistant -->
+        <aside class="assistant-drawer" id="assistantDrawer">
+            <div class="drawer-header">
+                <div class="drawer-title">
+                    <i class="fa-regular fa-comment-dots"></i>
+                    <span>AI Vision Assistant</span>
+                </div>
+                <div class="drawer-header-actions">
+                    <button type="button" class="drawer-icon-btn" id="btnClearChat" title="Clear Conversation">
+                        <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                    <button type="button" class="drawer-icon-btn" id="btnCloseDrawer" title="Close Drawer">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Messages Stream -->
+            <div class="drawer-chat-log" id="chatLog">
+                <div class="chat-bubble bot">
+                    <p>👋 Welcome to <strong>Lumina Studio</strong>. Type any photo transformation in plain English or pick a quick suggestion below!</p>
+                </div>
+            </div>
+
+            <!-- Suggested Quick Prompts -->
+            <div class="drawer-chips-bar" id="quickPrompts">
+                <button class="prompt-chip" data-prompt="Remove background">✂️ Remove BG</button>
+                <button class="prompt-chip" data-prompt="Vectorize to SVG">📐 Vectorize (SVG)</button>
+                <button class="prompt-chip" data-prompt="Convert to PNG">🖼️ Make PNG</button>
+                <button class="prompt-chip" data-prompt="Convert to JPG">📄 Make JPG</button>
+                <button class="prompt-chip" data-prompt="Sharpen details">💎 Sharpen</button>
+                <button class="prompt-chip" data-prompt="Warm golden hour">🌅 Golden Hour</button>
+                <button class="prompt-chip" data-prompt="Make it a cartoon">🎨 Cartoonify</button>
+                <button class="prompt-chip" data-prompt="Cinematic vignette">📷 Vignette</button>
+                <button class="prompt-chip" data-prompt="Enhance contrast with clahe">☀️ CLAHE</button>
+                <button class="prompt-chip" data-prompt="Denoise skin">🌿 Denoise</button>
+                <button class="prompt-chip" data-prompt="Boost color saturation">🌈 Vibrance</button>
+                <button class="prompt-chip" data-prompt="Black and white">🌗 B&W</button>
+                <button class="prompt-chip" data-prompt="Vintage sepia">🍂 Sepia</button>
+                <button class="prompt-chip" data-prompt="3D emboss relief">🧱 3D Emboss</button>
+                <button class="prompt-chip" data-prompt="Neon edge glow">⚡ Neon Glow</button>
+            </div>
+
+            <!-- Chat Input Form -->
+            <form class="drawer-input-form" id="chatForm">
+                <input type="text" id="userInput" placeholder="Ask AI to transform image..." autocomplete="off" required>
+                <button type="submit" class="drawer-send-btn">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
+        </aside>
+
+    </div>
+
+    <!-- Export Modal Dialog -->
+    <div class="modal-backdrop" id="exportModal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Export Image</h3>
+                <button type="button" class="modal-close" id="btnCloseExport"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Export Format</label>
+                    <div class="radio-card-group">
+                        <label class="radio-card">
+                            <input type="radio" name="exportFormat" value="png" checked>
+                            <div class="radio-info">
+                                <strong>PNG</strong>
+                                <span>Lossless high-quality bitmap</span>
+                            </div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="exportFormat" value="jpg">
+                            <div class="radio-info">
+                                <strong>JPEG</strong>
+                                <span>Compressed web photo format</span>
+                            </div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="exportFormat" value="webp">
+                            <div class="radio-info">
+                                <strong>WEBP</strong>
+                                <span>Modern efficient web standard</span>
+                            </div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="exportFormat" value="svg">
+                            <div class="radio-info">
+                                <strong>SVG (Vector)</strong>
+                                <span>Scalable resolution-independent vector paths</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group" id="qualityField" style="display: none;">
+                    <div class="quality-label-row">
+                        <label>Compression Quality</label>
+                        <span class="quality-val-badge" id="qualityVal">90%</span>
+                    </div>
+                    <input type="range" id="exportQuality" min="40" max="100" value="90" step="5" class="custom-range">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-subtle" id="btnCancelExport">Cancel</button>
+                <button type="button" class="btn-accent" id="btnConfirmExport">Download Image</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shortcuts Dialog -->
+    <div class="modal-backdrop" id="shortcutsModal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Keyboard Shortcuts</h3>
+                <button type="button" class="modal-close" id="btnCloseShortcuts"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="shortcut-list">
+                    <div class="shortcut-item"><kbd>Ctrl</kbd> + <kbd>V</kbd> <span>Paste image directly from clipboard</span></div>
+                    <div class="shortcut-item"><kbd>Ctrl</kbd> + <kbd>Z</kbd> <span>Undo previous edit transformation</span></div>
+                    <div class="shortcut-item"><kbd>Space</kbd> <span>Hold to peek unedited original photo</span></div>
+                    <div class="shortcut-item"><kbd>Ctrl</kbd> + <kbd>S</kbd> <span>Open export / save dialog</span></div>
+                    <div class="shortcut-item"><kbd>Enter</kbd> <span>Execute natural language prompt</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Stack -->
+    <div class="toast-stack" id="toastContainer"></div>
+
+    <!-- App JavaScript -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

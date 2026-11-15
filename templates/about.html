@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Lumina Studio — Prototype v2.0 & Contact</title>
+    <script>
+        (function() {
+            var saved = localStorage.getItem("lumina_theme") || "dark";
+            document.documentElement.setAttribute("data-theme", saved);
+        })();
+    </script>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Main Style -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <style>
+        body.about-body {
+            background-color: var(--bg-app);
+            color: var(--text-primary);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        [data-theme="light"] {
+            --bg-app: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-muted: #475569;
+            --border-subtle: #e2e8f0;
+            --border-medium: #cbd5e1;
+        }
+
+        [data-theme="light"] body.about-body {
+            background-color: #f8fafc !important;
+            color: #0f172a !important;
+        }
+
+        .about-page-wrap {
+            max-width: 1060px;
+            margin: 0 auto;
+            padding: 2.2rem 1.5rem 6rem 1.5rem;
+        }
+
+        .about-nav-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .about-brand-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .about-brand-logo {
+            width: 38px;
+            height: 38px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+        }
+
+        .about-brand-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+        }
+
+        [data-theme="light"] .about-brand-name {
+            color: #0f172a !important;
+        }
+
+        .about-badge-version {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 0.2rem 0.55rem;
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--accent-indigo);
+            border: 1px solid rgba(99, 102, 241, 0.35);
+            border-radius: 12px;
+            font-family: var(--font-mono);
+        }
+
+        .about-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        [data-theme="light"] .nav-btn-subtle {
+            color: #334155 !important;
+            border-color: #cbd5e1 !important;
+            background: #ffffff !important;
+        }
+        [data-theme="light"] .nav-btn-subtle:hover {
+            color: #0f172a !important;
+            border-color: #94a3b8 !important;
+            background: #f1f5f9 !important;
+        }
+
+        /* Hero Banner */
+        .about-hero {
+            text-align: center;
+            margin-bottom: 2.75rem;
+        }
+
+        .about-hero h1 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 0.85rem;
+            letter-spacing: -0.8px;
+            line-height: 1.2;
+        }
+
+        [data-theme="light"] .about-hero h1 {
+            color: #0f172a !important;
+        }
+
+        .about-hero .gradient-text {
+            background: linear-gradient(135deg, #6366f1, #a855f7, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .about-hero p {
+            color: var(--text-muted);
+            font-size: 1.12rem;
+            max-width: 680px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        [data-theme="light"] .about-hero p {
+            color: #475569 !important;
+        }
+
+        /* Prototype Notice Banner (High-Contrast in both Dark and Light mode) */
+        .prototype-banner {
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.45);
+            border-radius: 12px;
+            padding: 1.35rem 1.6rem;
+            margin-bottom: 3.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1.1rem;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.08);
+        }
+
+        [data-theme="light"] .prototype-banner {
+            background: #fffbeb;
+            border: 1px solid #f59e0b;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.15);
+        }
+
+        .prototype-banner-icon {
+            font-size: 1.7rem;
+            color: #f59e0b;
+            flex-shrink: 0;
+            margin-top: 0.15rem;
+        }
+
+        .prototype-banner-content h3 {
+            font-size: 1.08rem;
+            font-weight: 700;
+            color: #f59e0b;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        [data-theme="light"] .prototype-banner-content h3 {
+            color: #b45309;
+        }
+
+        .prototype-banner-content p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        [data-theme="light"] .prototype-banner-content p {
+            color: #451a03;
+        }
+
+        .prototype-banner-content .highlight-line {
+            font-weight: 600;
+            color: #f59e0b;
+            display: inline-block;
+            margin-top: 0.35rem;
+        }
+
+        [data-theme="light"] .prototype-banner-content .highlight-line {
+            color: #b45309;
+        }
+
+        /* Pillars Grid */
+        .about-section-title {
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        [data-theme="light"] .about-section-title {
+            color: #0f172a !important;
+        }
+
+        .about-section-title i {
+            color: var(--accent-indigo);
+        }
+
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 3.5rem;
+        }
+
+        .pillar-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.2s ease;
+        }
+
+        [data-theme="light"] .pillar-card {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        .pillar-card:hover {
+            border-color: var(--accent-indigo);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .pillar-icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: rgba(99, 102, 241, 0.12);
+            color: var(--accent-indigo);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(99, 102, 241, 0.25);
+        }
+
+        .pillar-card h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        [data-theme="light"] .pillar-card h4 {
+            color: #0f172a !important;
+        }
+
+        .pillar-card p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.55;
+            margin: 0;
+        }
+
+        [data-theme="light"] .pillar-card p {
+            color: #475569 !important;
+        }
+
+        /* Tech Specs Grid */
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 4rem;
+        }
+
+        .spec-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+        }
+
+        [data-theme="light"] .spec-item {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+
+        .spec-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        [data-theme="light"] .spec-label {
+            color: #64748b !important;
+        }
+
+        .spec-value {
+            font-size: 0.98rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+        }
+
+        [data-theme="light"] .spec-value {
+            color: #0f172a !important;
+        }
+
+        /* Contact & Issue Report Section */
+        .contact-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-medium);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        [data-theme="light"] .contact-box {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06) !important;
+        }
+
+        .contact-box::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+        }
+
+        .contact-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .contact-header h2 {
+            font-size: 1.85rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.6rem;
+            letter-spacing: -0.4px;
+        }
+
+        [data-theme="light"] .contact-header h2 {
+            color: #0f172a !important;
+        }
+
+        .contact-header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            max-width: 620px;
+            margin: 0 auto 1.25rem auto;
+            line-height: 1.55;
+        }
+
+        [data-theme="light"] .contact-header p {
+            color: #475569 !important;
+        }
+
+        .contact-email-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.45rem 1.1rem;
+            background: rgba(99, 102, 241, 0.12);
+            border: 1px solid rgba(99, 102, 241, 0.35);
+            border-radius: 20px;
+            color: var(--accent-indigo);
+            font-weight: 600;
+            font-size: 0.92rem;
+            font-family: var(--font-mono);
+        }
+
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        @media (max-width: 640px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        [data-theme="light"] .form-group label {
+            color: #1e293b !important;
+        }
+
+        .form-group label span.required {
+            color: #ef4444;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-medium);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.92rem;
+            font-family: var(--font-sans);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        [data-theme="light"] .form-control {
+            background: #f8fafc !important;
+            border: 1px solid #cbd5e1 !important;
+            color: #0f172a !important;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-indigo);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+        }
+
+        [data-theme="light"] .form-control:focus {
+            background: #ffffff !important;
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+        }
+
+        textarea.form-control {
+            min-height: 130px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .form-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-submit-contact {
+            padding: 0.85rem 1.8rem;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+            transition: all 0.2s ease;
+        }
+
+        .btn-submit-contact:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(99, 102, 241, 0.45);
+        }
+
+        .btn-submit-contact:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-mailto-direct {
+            padding: 0.85rem 1.4rem;
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-medium);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        [data-theme="light"] .btn-mailto-direct {
+            color: #475569 !important;
+            border-color: #cbd5e1 !important;
+            background: #ffffff !important;
+        }
+
+        .btn-mailto-direct:hover {
+            color: var(--text-primary);
+            border-color: var(--accent-indigo);
+            background: var(--bg-card);
+        }
+
+        /* Status Banner */
+        .status-msg-box {
+            display: none;
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.92rem;
+            font-weight: 500;
+            margin-top: 1rem;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .status-msg-box.success {
+            display: flex;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: #10b981;
+        }
+
+        .status-msg-box.error {
+            display: flex;
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            color: #ef4444;
+        }
+
+        .about-footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body class="about-body" data-theme="dark">
+
+    <div class="about-page-wrap">
+
+        <!-- Top Navigation -->
+        <nav class="about-nav-bar">
+            <a href="/" class="about-brand-wrap">
+                <div class="about-brand-logo">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <span class="about-brand-name">Lumina Studio</span>
+                <span class="about-badge-version">v2.0 Beta</span>
+            </a>
+
+            <div class="about-nav-links">
+                <button type="button" class="theme-toggle-btn" id="btnToggleTheme" title="Toggle Light / Dark Mode">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
+                    <span id="themeText">Dark</span>
+                </button>
+                <a href="/docs" class="nav-btn-subtle" title="Documentation & Command Reference">
+                    <i class="fa-regular fa-circle-question"></i> <span>Docs</span>
+                </a>
+                <a href="/" class="btn-primary-export" style="text-decoration: none; padding: 0.45rem 1rem; font-size: 0.88rem;">
+                    <i class="fa-solid fa-arrow-left"></i> <span>Studio Workbench</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <header class="about-hero">
+            <h1>Creative Image Processing with <span class="gradient-text">Local Sovereignty</span></h1>
+            <p>Lumina Studio is a high-performance computer vision workstation designed for interactive image manipulation, intelligent background cutouts, and AI-assisted photo editing.</p>
+        </header>
+
+        <!-- Mandatory Prototype Notice Banner -->
+        <div class="prototype-banner">
+            <i class="fa-solid fa-triangle-exclamation prototype-banner-icon"></i>
+            <div class="prototype-banner-content">
+                <h3><i class="fa-solid fa-flask-vial"></i> Experimental Prototype Notice</h3>
+                <p>
+                    This is a <strong>Prototype Version 2.0</strong> — it still needs a lot of improvement and bug fixes. 
+                    <br>
+                    <span class="highlight-line">
+                        We are actively refining the computer vision algorithms, real-time client-side compositing, and user interface ergonomics.
+                    </span>
+                    If you encounter any anomalies, glitches, or have suggestions, please use the contact form at the bottom of this page to report them directly to the developer.
+                </p>
+            </div>
+        </div>
+
+        <!-- Core Architectural Pillars -->
+        <h2 class="about-section-title"><i class="fa-solid fa-microchip"></i> What Makes Lumina Studio Unique</h2>
+        <div class="pillars-grid">
+            <div class="pillar-card">
+                <div class="pillar-icon-box"><i class="fa-solid fa-shield-halved"></i></div>
+                <h4>100% Local Sovereignty</h4>
+                <p>All image transformations, matrix convolutions, and uploads remain strictly inside your local machine. No external cloud endpoints receive your sensitive images.</p>
+            </div>
+
+            <div class="pillar-card">
+                <div class="pillar-icon-box"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                <h4>Smart AI GrabCut Cutouts</h4>
+                <p>Advanced foreground segmentation with adaptive color sampling. Accurately preserves dark shirts, hair, torso, and chairs without hollowing out or face-only stripping.</p>
+            </div>
+
+            <div class="pillar-card">
+                <div class="pillar-icon-box"><i class="fa-solid fa-sliders"></i></div>
+                <h4>22+ Vision Presets & Adjustments</h4>
+                <p>Planckian color warmth (Golden Hour vs. Cyberpunk), CLAHE adaptive contrast, bilateral skin smoothing, 3D relief emboss, cartoonification, and False-Color palettes.</p>
+            </div>
+
+            <div class="pillar-card">
+                <div class="pillar-icon-box"><i class="fa-solid fa-table-columns"></i></div>
+                <h4>Dimension-Matched Comparator</h4>
+                <p>Before & After Split Slider with hardware-accelerated CSS clip-path and auto dimension-matching against Previous Step or Original Photo to prevent aspect-ratio warping.</p>
+            </div>
+
+            <div class="pillar-card">
+                <div class="pillar-icon-box"><i class="fa-solid fa-bezier-curve"></i></div>
+                <h4>Vector SVG Tracing</h4>
+                <p>Converts discrete raster bitmaps into scalable vector graphics (SVG) paths using K-Means color quantization and Suzuki-Abe topological contour following.</p>
+            </div>
+
+            <div class="pillar-card">
+                <div class="pillar-icon-box"><i class="fa-solid fa-palette"></i></div>
+                <h4>Dual Creative Studio Themes</h4>
+                <p>Fluidly switch between High-Contrast Dark Studio mode (designed for photography and color grading) and Crisp Light mode with colorful custom slider tracks.</p>
+            </div>
+        </div>
+
+        <!-- Tech Stack Specifications -->
+        <h2 class="about-section-title"><i class="fa-solid fa-code"></i> Engineering & Tech Stack</h2>
+        <div class="specs-grid">
+            <div class="spec-item">
+                <div class="spec-label">Backend Engine</div>
+                <div class="spec-value">Python 3.10+ / Flask 3.0</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-label">Vision Core</div>
+                <div class="spec-value">OpenCV (cv2) & NumPy</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-label">Client Viewport</div>
+                <div class="spec-value">Vanilla ES6+ & Canvas API</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-label">Storage Architecture</div>
+                <div class="spec-value">Local Disk Storage (POSIX/NT)</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-label">Styling System</div>
+                <div class="spec-value">CSS3 Custom Properties</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-label">Documentation PDF</div>
+                <div class="spec-value">72 Pages (ReportLab Engine)</div>
+            </div>
+        </div>
+
+        <!-- Contact & Issue Report Section (Direct to developwithansh@gmail.com) -->
+        <section class="contact-box" id="contact">
+            <div class="contact-header">
+                <h2><i class="fa-solid fa-envelope-open-text" style="color: var(--accent-indigo);"></i> Report an Issue & Contact Developer</h2>
+                <p>
+                    Encountered a bug, need an additional OpenCV filter, or want to share feedback? Mention your details below—your message will be delivered directly to the developer's mailbox.
+                </p>
+                <div class="contact-email-pill">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span>Primary Target: developwithansh@gmail.com</span>
+                </div>
+            </div>
+
+            <form class="contact-form" id="issueContactForm" action="https://formsubmit.co/developwithansh@gmail.com" method="POST">
+                <!-- FormSubmit Hidden Flags -->
+                <input type="hidden" name="_captcha" value="false">
+                <input type="hidden" name="_subject" id="hiddenFormSubject" value="Lumina Studio v2.0 - Issue Report">
+                <input type="hidden" name="_template" value="table">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="contactName">Your Name / User ID <span class="required">*</span></label>
+                        <input type="text" id="contactName" name="name" class="form-control" placeholder="e.g. Ansh / @username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contactEmail">Your Email Address <span class="required">*</span></label>
+                        <input type="email" id="contactEmail" name="email" class="form-control" placeholder="your-email@example.com" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="contactCategory">Issue Category</label>
+                        <select id="contactCategory" name="category" class="form-control">
+                            <option value="Bug Report">🐛 Bug Report (Visual Glitch or Error)</option>
+                            <option value="AI Background Remover">🪄 Background Remover Feedback</option>
+                            <option value="Split Comparator">📐 Split Slider / Comparison Issue</option>
+                            <option value="Feature Request">✨ New Feature / OpenCV Filter Request</option>
+                            <option value="Performance">⚡ Performance or Memory Optimization</option>
+                            <option value="General Feedback">💬 General Feedback or Suggestion</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contactSubject">Subject <span class="required">*</span></label>
+                        <input type="text" id="contactSubject" name="subject" class="form-control" placeholder="Brief summary of the issue..." required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="contactMessage">Issue Description & Details <span class="required">*</span></label>
+                    <textarea id="contactMessage" name="message" class="form-control" placeholder="Please describe what happened, steps to reproduce, or what you'd like to improve..." required></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit-contact" id="btnSubmitContact">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>Send to developwithansh@gmail.com</span>
+                    </button>
+
+                    <a href="mailto:developwithansh@gmail.com" class="btn-mailto-direct" id="btnMailtoDirect" title="Open in default email client or Gmail">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        <span>Or Open in Email App</span>
+                    </a>
+                </div>
+
+                <!-- Status Feedback -->
+                <div class="status-msg-box" id="contactStatusBox"></div>
+            </form>
+        </section>
+
+        <!-- Footer -->
+        <footer class="about-footer">
+            <p>Lumina Studio Prototype Version 2.0 &bull; Sovereign Creative Computer Vision</p>
+            <p style="margin-top: 0.35rem; color: var(--text-dim);">
+                Maintained with &hearts; by Ansh &bull; Direct queries: <a href="mailto:developwithansh@gmail.com" style="color: var(--accent-indigo); text-decoration: none;">developwithansh@gmail.com</a>
+            </p>
+        </footer>
+
+    </div>
+
+    <script>
+        // Theme Engine Synchronizer
+        const btnToggleTheme = document.getElementById("btnToggleTheme");
+        const themeIcon = document.getElementById("themeIcon");
+        const themeText = document.getElementById("themeText");
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute("data-theme", theme);
+            document.body.setAttribute("data-theme", theme);
+            localStorage.setItem("lumina_theme", theme);
+            if (theme === "light") {
+                themeIcon.className = "fa-solid fa-sun";
+                themeText.innerText = "Light";
+            } else {
+                themeIcon.className = "fa-solid fa-moon";
+                themeText.innerText = "Dark";
+            }
+        }
+
+        const savedTheme = localStorage.getItem("lumina_theme") || "dark";
+        applyTheme(savedTheme);
+
+        btnToggleTheme.addEventListener("click", () => {
+            const current = document.documentElement.getAttribute("data-theme") || "dark";
+            applyTheme(current === "dark" ? "light" : "dark");
+        });
+
+        // Dynamic Mailto Builder
+        const contactName = document.getElementById("contactName");
+        const contactEmail = document.getElementById("contactEmail");
+        const contactCategory = document.getElementById("contactCategory");
+        const contactSubject = document.getElementById("contactSubject");
+        const contactMessage = document.getElementById("contactMessage");
+        const btnMailtoDirect = document.getElementById("btnMailtoDirect");
+        const hiddenFormSubject = document.getElementById("hiddenFormSubject");
+
+        function updateMailtoLink() {
+            const name = contactName.value.trim() || "User";
+            const email = contactEmail.value.trim() || "unspecified";
+            const cat = contactCategory.value;
+            const sub = contactSubject.value.trim() || "Lumina Studio Issue";
+            const msg = contactMessage.value.trim();
+
+            const fullSubject = `[${cat}] ${sub} (from ${name})`;
+            hiddenFormSubject.value = fullSubject;
+
+            const fullBody = `Sender Name / ID: ${name}\nSender Email: ${email}\nCategory: ${cat}\n\nDescription:\n${msg}\n\n---\nSent from Lumina Studio Prototype v2.0`;
+            btnMailtoDirect.href = `mailto:developwithansh@gmail.com?subject=${encodeURIComponent(fullSubject)}&body=${encodeURIComponent(fullBody)}`;
+        }
+
+        [contactName, contactEmail, contactCategory, contactSubject, contactMessage].forEach(el => {
+            el.addEventListener("input", updateMailtoLink);
+            el.addEventListener("change", updateMailtoLink);
+        });
+
+        // Contact Form AJAX Submission with Fallback
+        const form = document.getElementById("issueContactForm");
+        const btnSubmit = document.getElementById("btnSubmitContact");
+        const statusBox = document.getElementById("contactStatusBox");
+
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            updateMailtoLink();
+
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Sending report...</span>`;
+            statusBox.className = "status-msg-box";
+            statusBox.style.display = "none";
+
+            const formData = {
+                name: contactName.value.trim(),
+                email: contactEmail.value.trim(),
+                category: contactCategory.value,
+                subject: contactSubject.value.trim(),
+                message: contactMessage.value.trim(),
+                _subject: hiddenFormSubject.value
+            };
+
+            // 1. Post to local backend logger (/api/contact)
+            fetch("/api/contact", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData)
+            }).catch(err => console.warn("Local log notice:", err));
+
+            // 2. Dispatch to FormSubmit AJAX endpoint directly to developwithansh@gmail.com
+            fetch("https://formsubmit.co/ajax/developwithansh@gmail.com", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = `<i class="fa-solid fa-check"></i> <span>Message Sent!</span>`;
+                statusBox.className = "status-msg-box success";
+                statusBox.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>Success! Your report has been dispatched to <b>developwithansh@gmail.com</b>. Thank you for helping us improve Lumina Studio!</span>`;
+                statusBox.style.display = "flex";
+                form.reset();
+                setTimeout(() => {
+                    btnSubmit.innerHTML = `<i class="fa-solid fa-paper-plane"></i> <span>Send to developwithansh@gmail.com</span>`;
+                }, 4000);
+            })
+            .catch(err => {
+                // If offline or network blocks FormSubmit, fallback to native mailto trigger
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = `<i class="fa-solid fa-paper-plane"></i> <span>Send to developwithansh@gmail.com</span>`;
+                statusBox.className = "status-msg-box success";
+                statusBox.innerHTML = `<i class="fa-solid fa-info-circle"></i> <span>Form recorded! Opening your email app to ensure delivery to <b>developwithansh@gmail.com</b>...</span>`;
+                statusBox.style.display = "flex";
+                window.location.href = btnMailtoDirect.href;
+            });
+        });
+    </script>
+</body>
+</html>
