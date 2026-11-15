@@ -12,9 +12,9 @@ if os.path.exists(dotenv_path):
 
 class Config:
     BASE_DIR = BASE_DIR
-    SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-luminacv-7781")
+    SECRET_KEY = os.getenv("SECRET_KEY")
     FLASK_ENV = os.getenv("FLASK_ENV", "development")
-    DEBUG = os.getenv("FLASK_DEBUG", "True").lower() in ("true", "1", "yes")
+    DEBUG = os.getenv("FLASK_DEBUG", "False").lower() in ("true", "1", "yes")
 
     HOST = os.getenv("HOST", "127.0.0.1")
     PORT = int(os.getenv("PORT", "3000"))
