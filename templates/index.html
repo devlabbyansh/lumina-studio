@@ -24,6 +24,10 @@
     <!-- Top Application Menu & Navbar (Creative Suite Style) -->
     <header class="studio-navbar">
         <div class="nav-left">
+            <button type="button" class="btn-mobile-tools" id="btnToggleMobileTools" aria-label="Toggle Tools Drawer" title="Tools & Adjustments">
+                <i class="fa-solid fa-sliders"></i>
+            </button>
+
             <div class="app-brand">
                 <div class="brand-glyph">
                     <i class="fa-solid fa-shapes"></i>
@@ -166,6 +170,8 @@
 
     <!-- Main Workspace Area -->
     <div class="studio-workspace">
+        <!-- Backdrop for mobile drawers (tools & assistant) -->
+        <div class="drawer-mobile-backdrop" id="mobileDrawerBackdrop"></div>
         
         <!-- Left Vertical Toolrail (Creative App Style) -->
         <aside class="studio-toolrail" id="studioToolrail">
@@ -212,6 +218,9 @@
                 <button class="tab-btn" data-tab="filters"><i class="fa-solid fa-wand-magic-sparkles text-emerald"></i> Presets</button>
                 <button class="tab-btn" data-tab="transform"><i class="fa-solid fa-crop-simple text-amber"></i> Geometry</button>
                 <button class="tab-btn" data-tab="histogram"><i class="fa-solid fa-chart-area text-purple"></i> Histogram</button>
+                <button type="button" class="tab-btn-mobile-close" id="btnCloseMobileSidebar" aria-label="Close tools panel" title="Close">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
 
             <div class="sidebar-panels">

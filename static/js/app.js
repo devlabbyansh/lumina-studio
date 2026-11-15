@@ -490,16 +490,80 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // --- Mobile Responsive Drawer Controls ---
+    const btnToggleMobileTools = document.getElementById("btnToggleMobileTools");
+    const btnCloseMobileSidebar = document.getElementById("btnCloseMobileSidebar");
+    const mobileDrawerBackdrop = document.getElementById("mobileDrawerBackdrop");
+    const studioWorkspace = document.querySelector(".studio-workspace");
+
+    function openMobileTools() {
+        if (studioWorkspace) studioWorkspace.classList.add("mobile-sidebar-open");
+        if (btnToggleMobileTools) btnToggleMobileTools.classList.add("active");
+        if (mobileDrawerBackdrop) mobileDrawerBackdrop.classList.add("active");
+        // Close assistant drawer if open on small screen
+        if (window.innerWidth < 1024 && assistantDrawer && !assistantDrawer.classList.contains("collapsed")) {
+            assistantDrawer.classList.add("collapsed");
+            if (btnToggleAssistant) btnToggleAssistant.classList.remove("active");
+        }
+    }
+
+    function closeMobileTools() {
+        if (studioWorkspace) studioWorkspace.classList.remove("mobile-sidebar-open");
+        if (btnToggleMobileTools) btnToggleMobileTools.classList.remove("active");
+        if (mobileDrawerBackdrop && (!assistantDrawer || assistantDrawer.classList.contains("collapsed") || window.innerWidth >= 1024)) {
+            mobileDrawerBackdrop.classList.remove("active");
+        }
+    }
+
+    function toggleMobileTools() {
+        if (studioWorkspace && studioWorkspace.classList.contains("mobile-sidebar-open")) {
+            closeMobileTools();
+        } else {
+            openMobileTools();
+        }
+    }
+
+    if (btnToggleMobileTools) btnToggleMobileTools.addEventListener("click", toggleMobileTools);
+    if (btnCloseMobileSidebar) btnCloseMobileSidebar.addEventListener("click", closeMobileTools);
+
+    // Initial check for mobile/tablet screen sizes
+    if (window.innerWidth < 1024 && assistantDrawer) {
+        assistantDrawer.classList.add("collapsed");
+        if (btnToggleAssistant) btnToggleAssistant.classList.remove("active");
+    }
+
     // Assistant Drawer Toggle
     btnToggleAssistant.addEventListener("click", () => {
+        const willCollapse = !assistantDrawer.classList.contains("collapsed");
         assistantDrawer.classList.toggle("collapsed");
-        btnToggleAssistant.classList.toggle("active", !assistantDrawer.classList.contains("collapsed"));
+        btnToggleAssistant.classList.toggle("active", !willCollapse);
+
+        if (window.innerWidth < 1024) {
+            if (!willCollapse) {
+                closeMobileTools();
+                if (mobileDrawerBackdrop) mobileDrawerBackdrop.classList.add("active");
+            } else {
+                if (mobileDrawerBackdrop) mobileDrawerBackdrop.classList.remove("active");
+            }
+        }
     });
 
     if (btnCloseDrawer) {
         btnCloseDrawer.addEventListener("click", () => {
             assistantDrawer.classList.add("collapsed");
             btnToggleAssistant.classList.remove("active");
+            if (mobileDrawerBackdrop) mobileDrawerBackdrop.classList.remove("active");
+        });
+    }
+
+    if (mobileDrawerBackdrop) {
+        mobileDrawerBackdrop.addEventListener("click", () => {
+            closeMobileTools();
+            if (window.innerWidth < 1024 && assistantDrawer) {
+                assistantDrawer.classList.add("collapsed");
+                if (btnToggleAssistant) btnToggleAssistant.classList.remove("active");
+            }
+            mobileDrawerBackdrop.classList.remove("active");
         });
     }
 
@@ -615,6 +679,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function enterCropMode() {
         if (!currentFilename) return;
+        if (window.innerWidth < 768) closeMobileTools();
         isCropMode = true;
         cropOverlay.style.display = "block";
         cropToolbar.style.display = "flex";
@@ -640,11 +705,15 @@ document.addEventListener("DOMContentLoaded", () => {
         executeAction("crop", { x1: x1, y1: y1, x2: x2, y2: y2 });
     }
 
-    // Drag crop box
+    // Drag & resize crop box (Mouse & Touch)
     let isDraggingCrop = false;
     let cropStart = null;
+    let isResizingCrop = false;
+    let resizeHandle = null;
+    let cropResizeStart = null;
 
     cropBox.addEventListener("mousedown", (e) => {
+        if (e.target.classList.contains("crop-handle")) return;
         e.preventDefault();
         isDraggingCrop = true;
         cropStart = {
@@ -655,21 +724,109 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     });
 
-    window.addEventListener("mousemove", (e) => {
-        if (!isDraggingCrop || !cropStart) return;
-        const dx = e.clientX - cropStart.x;
-        const dy = e.clientY - cropStart.y;
-        const maxL = cropOverlay.clientWidth - cropBox.offsetWidth;
-        const maxT = cropOverlay.clientHeight - cropBox.offsetHeight;
+    cropBox.addEventListener("touchstart", (e) => {
+        if (e.target.classList.contains("crop-handle") || e.touches.length !== 1) return;
+        const t = e.touches[0];
+        isDraggingCrop = true;
+        cropStart = {
+            x: t.clientX,
+            y: t.clientY,
+            left: cropBox.offsetLeft,
+            top: cropBox.offsetTop
+        };
+    }, { passive: true });
 
-        cropBox.style.left = Math.max(0, Math.min(maxL, cropStart.left + dx)) + "px";
-        cropBox.style.top = Math.max(0, Math.min(maxT, cropStart.top + dy)) + "px";
+    // Corner handle resize listeners (Mouse & Touch)
+    document.querySelectorAll(".crop-handle").forEach(handle => {
+        const hType = handle.getAttribute("data-handle");
+
+        function onStartResize(clientX, clientY) {
+            isResizingCrop = true;
+            resizeHandle = hType;
+            cropResizeStart = {
+                x: clientX,
+                y: clientY,
+                left: cropBox.offsetLeft,
+                top: cropBox.offsetTop,
+                width: cropBox.offsetWidth,
+                height: cropBox.offsetHeight
+            };
+        }
+
+        handle.addEventListener("mousedown", (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            onStartResize(e.clientX, e.clientY);
+        });
+
+        handle.addEventListener("touchstart", (e) => {
+            if (e.touches.length !== 1) return;
+            e.stopPropagation();
+            onStartResize(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: true });
     });
 
-    window.addEventListener("mouseup", () => {
+    function handleCropMove(clientX, clientY) {
+        if (isDraggingCrop && cropStart) {
+            const dx = clientX - cropStart.x;
+            const dy = clientY - cropStart.y;
+            const maxL = Math.max(0, cropOverlay.clientWidth - cropBox.offsetWidth);
+            const maxT = Math.max(0, cropOverlay.clientHeight - cropBox.offsetHeight);
+
+            cropBox.style.left = Math.max(0, Math.min(maxL, cropStart.left + dx)) + "px";
+            cropBox.style.top = Math.max(0, Math.min(maxT, cropStart.top + dy)) + "px";
+        } else if (isResizingCrop && cropResizeStart) {
+            const dx = clientX - cropResizeStart.x;
+            const dy = clientY - cropResizeStart.y;
+            const overlayW = cropOverlay.clientWidth;
+            const overlayH = cropOverlay.clientHeight;
+            const minSize = 40;
+
+            let newL = cropResizeStart.left;
+            let newT = cropResizeStart.top;
+            let newW = cropResizeStart.width;
+            let newH = cropResizeStart.height;
+
+            if (resizeHandle.includes("r")) newW = Math.max(minSize, Math.min(overlayW - newL, cropResizeStart.width + dx));
+            if (resizeHandle.includes("b")) newH = Math.max(minSize, Math.min(overlayH - newT, cropResizeStart.height + dy));
+            if (resizeHandle.includes("l")) {
+                const maxLeft = cropResizeStart.left + cropResizeStart.width - minSize;
+                newL = Math.max(0, Math.min(maxLeft, cropResizeStart.left + dx));
+                newW = cropResizeStart.width - (newL - cropResizeStart.left);
+            }
+            if (resizeHandle.includes("t")) {
+                const maxTop = cropResizeStart.top + cropResizeStart.height - minSize;
+                newT = Math.max(0, Math.min(maxTop, cropResizeStart.top + dy));
+                newH = cropResizeStart.height - (newT - cropResizeStart.top);
+            }
+
+            cropBox.style.left = `${newL}px`;
+            cropBox.style.top = `${newT}px`;
+            cropBox.style.width = `${newW}px`;
+            cropBox.style.height = `${newH}px`;
+        }
+    }
+
+    window.addEventListener("mousemove", (e) => {
+        handleCropMove(e.clientX, e.clientY);
+    });
+
+    window.addEventListener("touchmove", (e) => {
+        if ((isDraggingCrop || isResizingCrop) && e.touches.length === 1) {
+            handleCropMove(e.touches[0].clientX, e.touches[0].clientY);
+        }
+    }, { passive: true });
+
+    function stopCropDrag() {
         isDraggingCrop = false;
         cropStart = null;
-    });
+        isResizingCrop = false;
+        resizeHandle = null;
+        cropResizeStart = null;
+    }
+
+    window.addEventListener("mouseup", stopCropDrag);
+    window.addEventListener("touchend", stopCropDrag);
 
     // =========================================================================
     // 8. Manual Background Eraser Engine
@@ -719,6 +876,7 @@ document.addEventListener("DOMContentLoaded", () => {
             showToast("Open an image first", "info");
             return;
         }
+        if (window.innerWidth < 768) closeMobileTools();
 
         // Switch to split view to ensure alignment with canvas bounds
         if (currentViewMode !== "split") {
@@ -1017,6 +1175,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function executeAction(action, params = {}) {
+        if (window.innerWidth < 768) closeMobileTools();
         appendChat("user", `Apply ${action}`);
         setLoader(true, `Running ${action}...`);
 
@@ -1251,6 +1410,9 @@ document.addEventListener("DOMContentLoaded", () => {
     function setRailActive(targetBtn) {
         railBtns.forEach(b => b.classList.remove("active"));
         if (targetBtn) targetBtn.classList.add("active");
+        if (targetBtn && (targetBtn === railTabAdjust || targetBtn === railTabPresets || targetBtn === railTabHist)) {
+            if (window.innerWidth < 768) openMobileTools();
+        }
     }
 
     if (railToolSelect) {
